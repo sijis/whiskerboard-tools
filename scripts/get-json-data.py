@@ -5,9 +5,9 @@ import simplejson
 import sys
 import pprint
 
-if sys.argv[1] != '':
+try:
     url = sys.argv[1]
-else:
+except Exception as e:
     url = 'http://localhost:8000/api/v1/services/?format=json'
 
 req = urllib2.Request(url, None, {'content-type': 'application/json'})
