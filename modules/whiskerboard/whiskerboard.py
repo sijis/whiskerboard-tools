@@ -1,10 +1,10 @@
-#!/usr/bin/python -tt
+#!/usr/bin/env python
+
 import httplib
-import urllib
 import json
 from datetime import datetime
 
-__author__ = 'Sijis Aviles'
+__author__ = 'Sijis Aviles, Luis Henrique Okama'
 
 
 class WhiskerBoard(object):
@@ -15,7 +15,8 @@ class WhiskerBoard(object):
     default_user = ('api', 'api')
     default_api = '/api/v1'
 
-    def __init__(self, protocol=default_protocol, host=default_host, port=default_port, api=default_api, user=default_user):
+    def __init__(self, protocol=default_protocol, host=default_host, port=default_port, api=default_api,
+                 user=default_user):
 
         self.protocol = protocol
         self.host = host
@@ -42,6 +43,13 @@ class WhiskerBoard(object):
         data, response = self.connection('GET', '%s/services/?name=%s' % (self.api, name), '', self.headers)
         uri = data['objects'][0]['resource_uri']
         return uri
+
+    def get_service_status(self, name):
+        data, response = self.connection('GET', '%s/services/?name=%s' % (self.api, name), '', self.headers)
+        if not data['objects'][0]['current-event']:
+            return data['objects'][0]['current-event']
+
+        return data['objects'][0]['current-event']['status']
 
     def connection(self, method, url, params, headers):
 
@@ -84,3 +92,8 @@ class WhiskerBoard(object):
         data, response = self.connection('POST', api_url, params, self.headers)
 
         return data, response
+
+    def update_differ_status(self, status, message, service):
+
+        if self.get_service_status(service) != status.capitalize():
+            self.update_status(status, message, service)
